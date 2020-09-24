@@ -1,23 +1,22 @@
-var { Db, Server } = require('mongodb');
+var { MongoClient } = require('mongodb');
 
 
 export class MongoHandler{
 
-	constructor(host,port,db_name){
-		this.host = host;
-		this.port = port;
+	constructor(url,db_name){
+		this.url = url;
 		this.db_name = db_name;
 
 		this.getDBObject(db_name);
 	}
 
-	getDBObject(){
+	async getDBObject(){
 		if(this.db_object!=null)
 			return this.db_object;
 
-		this.db_object = new Db(this.db_name, new Server(this.host, this.port));
+		var dbclient = await MongoClient.connect(this.url,{ useNewUrlParser: true });
+		this.db_object = dbclient.db(this.db_name);
 
-		console.log("New db connection created");
 		return this.db_object;
 	}
 }

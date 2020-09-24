@@ -2,8 +2,8 @@ const { MongoHandler } = require('../scripts/mongohandler');
 
 export class CassaoneDao{
 
-	constructor(host,port,db_name){
-		this.mongo_handler = new MongoHandler(host,port,db_name);
+	constructor(url,db_name){
+		this.mongo_handler = new MongoHandler(url,db_name);
 	}
 
 	updateAssemblyTime(productId,time){
@@ -17,6 +17,7 @@ export class CassaoneDao{
 				console.info("1 document updated");
 			  }
 			);
+
 	}
 
 	insertProductInfo(productinfo){
@@ -28,9 +29,11 @@ export class CassaoneDao{
 		  });
 	}
 
-	async getProductInfo(productId){
-		var dbo =  this.mongo_handler.getDBObject();
+	async getProductInfo(productid){
+		var dbo = await this.mongo_handler.getDBObject();
 
-		return dbo.collection('productinfo').find({id:productId}).next();
+		var productinfolist = await dbo.collection('productinfo').find({productid:productid}).toArray();
+
+		return productinfolist[0];
 	}
 }
