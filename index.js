@@ -9,7 +9,7 @@ app.get("/healthcheck",(req,res)=>{
 	res.send("All good");
 });
 
-const updateatime = require('./routes/updateatime')
+const updateatime = require('./routes/controller')
 
 app.use('/updateatime',updateatime);
 

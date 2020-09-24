@@ -1,6 +1,5 @@
 var assert = require('assert');
-const { Console } = require('console');
-const { CassaoneDao } = require('../scripts/casaonedao');
+const CassaoneDao = require('../scripts/casaonedao');
 
 var dao = new CassaoneDao("mongodb://localhost:27017/","casaonedb_test");
 

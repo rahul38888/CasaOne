@@ -1,7 +1,5 @@
 var { MongoClient } = require('mongodb');
-
-
-export class MongoHandler{
+class MongoHandler{
 
 	constructor(url,db_name){
 		this.url = url;
@@ -16,7 +14,10 @@ export class MongoHandler{
 
 		var dbclient = await MongoClient.connect(this.url,{ useNewUrlParser: true });
 		this.db_object = dbclient.db(this.db_name);
+		console.info("New db object created : "+this.url+"/"+this.db_name);
 
 		return this.db_object;
 	}
 }
+
+module.exports = MongoHandler;

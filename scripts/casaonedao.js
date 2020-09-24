@@ -1,8 +1,7 @@
-const { MongoHandler } = require('../scripts/mongohandler');
+const MongoHandler = require('../scripts/mongohandler');
 var assert = require('assert');
 
-export class CassaoneDao{
-
+class CassaoneDao{
 
 	constructor(url,db_name){
 		this.max_last_assemblies_count = 5;
@@ -18,23 +17,32 @@ export class CassaoneDao{
 
 		var productinfo = await this.getProductInfo(productId);
 
-		var old_assemblies = productinfo.lastassemblies;
-		old_assemblies.shift();
-		old_assemblies.push(time);
+		if(productinfo==undefined){
+			console.error("No product found for productid: "+productId);
+			throw new Error("No product found for productid: "+productId);
+		}
 
-		assert.strictEqual(old_assemblies.length,this.max_last_assemblies_count);
+		var assemblies = productinfo.lastassemblies;
+		assemblies.shift();
+		assemblies.push(time);
 
-		var average_atime = old_assemblies.reduce((a, b) => (a + b))/old_assemblies.length;
+		if(assemblies.length!=this.max_last_assemblies_count){
+			console.error("Last assemblies list size is not "+this.max_last_assemblies_count);
+			throw new Error("Last assemblies list size is not "+this.max_last_assemblies_count);
+		}
+
+		var average_atime = assemblies.reduce((a, b) => (a + b))/assemblies.length;
 
 		await dbo.collection('productinfo').updateOne(
 			{_id:productId},
-			{ $set: {assemblytime: average_atime,lastassemblies:old_assemblies}},
+			{ $set: {assemblytime: average_atime,lastassemblies:assemblies}},
 			function(err, res) {
 				if (err) throw err;
-				console.info("Product info updated with (productid,assemblytime,lastassemblies): ("+productinfo.productid+","+average_atime+",["+old_assemblies+"])");
+				console.info("Product info updated with (productid,assemblytime,lastassemblies): ("+productinfo.productid+","+average_atime+",["+assemblies+"])");
 			  }
 			);
 
+		return {productid:productId,assemblytime:average_atime,lastassemblies:assemblies}
 	}
 
 	async insertProductInfo(productinfo){
@@ -49,8 +57,10 @@ export class CassaoneDao{
 	async getProductInfo(productid){
 		var dbo = await this.mongo_handler.getDBObject();
 
-		var productinfolist = await dbo.collection('productinfo').find({productid:productid}).toArray();
+		var productinfolist = await dbo.collection('productinfo').find({_id:productid}).toArray();
 
 		return productinfolist[0];
 	}
 }
+
+module.exports = CassaoneDao;
