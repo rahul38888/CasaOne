@@ -26,9 +26,8 @@ class CassaoneDao{
 		assemblies.shift();
 		assemblies.push(time);
 
-		if(assemblies.length!=this.max_last_assemblies_count){
-			console.error("Last assemblies list size is not "+this.max_last_assemblies_count);
-			throw new Error("Last assemblies list size is not "+this.max_last_assemblies_count);
+		if(assemblies.length>this.max_last_assemblies_count){
+			console.warn("Past assemblies list size should not be more than "+this.max_last_assemblies_count);
 		}
 
 		var average_atime = assemblies.reduce((a, b) => (a + b))/assemblies.length;
