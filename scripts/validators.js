@@ -18,12 +18,12 @@ const query_validator = joi.object().keys({
 })
 
 function validate(data,validator) {
-	joi.validate(data,validator,(err,result)=>{
+	return joi.validate(data,validator,(err,result)=>{
 		if(err){
 			const errors = [];
 			err.details.forEach(detail=>{errors.push(detail.message)});
 			console.log(errors);
-			return false;
+			throw err;
 		}
 		else
 			return true;

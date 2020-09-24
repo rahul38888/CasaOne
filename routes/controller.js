@@ -9,8 +9,14 @@ var dao = new CassaoneDao("mongodb://localhost:27017/","casaonedb");
 
 const route = express.Router();
 route.get("/updateatime/:productid",async (req,res)=>{
+	console.log(req.params);
+	console.log(req.query);
 
-	if(productidvalidator(req.params) == false || atimevalidator(req.query)==false){
+	try{
+		productidvalidator(req.params);
+		atimevalidator(req.query);
+	}
+	catch(e){
 		res.send({error:"Validation exception. Product id and/or assembly time is passed wrong"});
 		return;
 	}
@@ -39,7 +45,7 @@ route.get("/fetch",async (req,res)=>{
 
 	try{
 		var result = await dao.getProductInfo(productid);
-		res.send({status:"Done","update":result});
+		res.send(result);
 	}
 	catch(e){
 		res.send({error:"Exception while updating",exception:e.message});
