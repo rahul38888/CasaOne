@@ -1,7 +1,9 @@
 {
+	"_id":1234,
 	"productid":1234,
 	"name":"Montauk Queen Bed Rustic Gray",
 	"color":"grey",
-	"assemblytime":51.0,
-	"lastassemblies":[40,50,35,70,60]
+	"assemblytime":51,
+	"lastassemblies":[40,50,35,70,60],
+	"pricepermonth":44
 }

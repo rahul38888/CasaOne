@@ -34,14 +34,12 @@ class CassaoneDao{
 
 		await dbo.collection('productinfo').updateOne(
 			{_id:productId},
-			{ $set: {assemblytime: average_atime,lastassemblies:assemblies}},
-			function(err, res) {
-				if (err) throw err;
-				console.info("Product info updated with (productid,assemblytime,lastassemblies): ("+productinfo.productid+","+average_atime+",["+assemblies+"])");
-			  }
-			);
+			{ $set: {assemblytime: average_atime,lastassemblies:assemblies}}
+		);
 
-		return {productid:productId,assemblytime:average_atime,lastassemblies:assemblies}
+		console.info("Product info updated with (productid,assemblytime,lastassemblies): ("+productinfo.productid+","+average_atime+",["+assemblies+"])");
+
+		return {productid:productId,assemblytime:average_atime,lastassemblies:assemblies};
 	}
 
 	async insertProductInfo(productinfo){
@@ -51,6 +49,42 @@ class CassaoneDao{
 			if (err) throw err;
 			console.info("Product info inserted: "+productinfo.productid);
 		  });
+	}
+
+	async productListing(query){
+		var dbo = await this.mongo_handler.getDBObject();
+
+		var find= this.findfilterJson(query);
+		var sort = this.sortJson(query);
+
+		var productinfolist = await dbo.collection('productinfo').find(find).sort(sort).toArray();
+
+		return productinfolist;
+
+	}
+
+	sortJson(query){
+		var sortorder = query.sortorder=="desc"?-1:1;
+		var sortby = query.sortby=="atime"?"assemblytime":"pricepermonth";
+
+		return JSON.parse("{\""+sortby+"\":"+sortorder+"}");
+	}
+
+	findfilterJson(query) {
+		var findfilter = {};
+		if(query.productid)
+			findfilter._id = query.productid;
+
+		if(query.color)
+			findfilter.color = query.color;
+
+			if(query.maxatime)
+				findfilter.assemblytime = {"$lte":query.maxatime}
+
+			if(query.minatime)
+				findfilter.assemblytime = {"$lte":query.minatime}
+
+		return findfilter;
 	}
 
 	async getProductInfo(productid){

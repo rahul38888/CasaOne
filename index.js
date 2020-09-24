@@ -11,6 +11,6 @@ app.get("/healthcheck",(req,res)=>{
 
 const updateatime = require('./routes/controller')
 
-app.use('/updateatime',updateatime);
+app.use('/productinfo',updateatime);
 
 app.listen(2020);
