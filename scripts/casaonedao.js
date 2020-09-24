@@ -1,31 +1,48 @@
 const { MongoHandler } = require('../scripts/mongohandler');
+var assert = require('assert');
 
 export class CassaoneDao{
 
+
 	constructor(url,db_name){
+		this.max_last_assemblies_count = 5;
 		this.mongo_handler = new MongoHandler(url,db_name);
 	}
 
-	updateAssemblyTime(productId,time){
-		var dbo =  this.mongo_handler.getDBObject();
+	async getdbObject(){
+		return await this.mongo_handler.getDBObject();
+	}
 
-		dbo.collection('productinfo').updateOne(
-			{id:productId},
-			{ $set: {atime: time} },
+	async addNewAssemblyTime(productId,time){
+		var dbo =  await this.mongo_handler.getDBObject();
+
+		var productinfo = await this.getProductInfo(productId);
+
+		var old_assemblies = productinfo.lastassemblies;
+		old_assemblies.shift();
+		old_assemblies.push(time);
+
+		assert.strictEqual(old_assemblies.length,this.max_last_assemblies_count);
+
+		var average_atime = old_assemblies.reduce((a, b) => (a + b))/old_assemblies.length;
+
+		await dbo.collection('productinfo').updateOne(
+			{_id:productId},
+			{ $set: {assemblytime: average_atime,lastassemblies:old_assemblies}},
 			function(err, res) {
 				if (err) throw err;
-				console.info("1 document updated");
+				console.info("Product info updated with (productid,assemblytime,lastassemblies): ("+productinfo.productid+","+average_atime+",["+old_assemblies+"])");
 			  }
 			);
 
 	}
 
-	insertProductInfo(productinfo){
-		var dbo =  this.mongo_handler.getDBObject();
+	async insertProductInfo(productinfo){
+		var dbo =  await this.mongo_handler.getDBObject();
 
-		dbo.collection('productinfo').insertOne(productinfo, function(err, res) {
+		await dbo.collection('productinfo').insertOne(productinfo, function(err, res) {
 			if (err) throw err;
-			console.log("1 document inserted");
+			console.info("Product info inserted: "+productinfo.productid);
 		  });
 	}
 

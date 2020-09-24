@@ -1,4 +1,5 @@
 use casaonedb
+use casaonedb_test
 
 db.createCollection("productinfo")
 
