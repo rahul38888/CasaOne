@@ -3,9 +3,9 @@
 
 This rest application has been build using **nodejs v10.19.0** javascript engine and **mongodb v4.2.9** as backend database
 
->### Steps to run rest server:
+>### Steps to run REST server:
 1. Start mongo server. Make sure it is running on _localhost:27017_
-2. Run following command to create database, collection and sample data.
+2. Run following command to create database, collection and sample data. _Ctrl+c_ to stop the script.
 ```
 node sampledatacreator.js
 ```
@@ -14,7 +14,7 @@ node sampledatacreator.js
 node index.js
 ```
 
->## **Assembly time management**
+## **Assembly time management**
 
 To fetch product info for productid 1234 try following url:
 
@@ -44,4 +44,6 @@ Some examples for payloads which can be passed with above API:
 
 To update assembly time of product with productid 1234 with 40(minutes) try following url:
 
-> [localhost:2020/updateatime/1234?atime=40](localhost:2020/updateatime/1234?atime=40)
+[localhost:2020/updateatime/1234?atime=40](localhost:2020/updateatime/1234?atime=40)
+
+## **Product rating management**
