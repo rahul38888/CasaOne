@@ -23,6 +23,10 @@ To fetch product info for productid 1234 try following url:
 Some examples for payloads which can be passed with above API:
 
 ``` json
+{"minatime":9,"maxatime":10,"sortby":"atime","sortorder":"desc"}
+```
+
+``` json
 {"sortby":"atime","sortorder":"desc"}
 ```
 
@@ -39,8 +43,9 @@ Some examples for payloads which can be passed with above API:
 ```
 
 ``` json
-{"minatime":9,"maxatime":10},result_count:1}
+{"minatime":9,"maxatime":10}
 ```
+
 
 To update assembly time of product with productid 1234 with 40(minutes) try following url:
 
