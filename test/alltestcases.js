@@ -6,29 +6,29 @@ var dao = new CassaoneDao("mongodb://localhost:27017/","casaonedb_test");
 
 const collection = "productinfo";
 
-const test_products = [
-	{"_id":1234,"productid":1234,"name":"Montauk Queen Bed Rustic Gray","color":"grey","assemblytime":51,"lastassemblies":[40,50,35,70,60],"pricepermonth":44},
-
-	{"_id":1235,"productid":1235,"name":"Helix King Mattress White","color":"white","assemblytime":10,"lastassemblies":[10,20,5,5,10],"pricepermonth":36},
-
-	{"_id":1236,"productid":1236,"name":"Hex 5 lb Dumbbell Black (Single Unit)","color":"black","pricepermonth":1},
-
-	{"_id":1237,"productid":1237,"name":"Helix Queen Mattress White","color":"white","assemblytime":8,"lastassemblies":[10,10,5,5,10],"pricepermonth":27}
-]
+const test_products = require("../resources/sampledata");
 
 const queries = [
-	{query:{sortby:"atime",sortorder:"desc"},result_count:4},
+	{query:{"sortby":"atime","sortorder":"desc"},result_count:4},
+	{query:{"sortby":"price","sortorder":"asc"},result_count:4},
 	{query:{},result_count:4},
-	{query:{productid:1234},result_count:1},
-	{query:{color:'white'},result_count:2},
-	{query:{maxatime:10},result_count:2},
-	{query:{minatime:11},result_count:1},
-	{query:{minatime:9,maxatime:10},result_count:1}
+	{query:{"productid":1234},result_count:1},
+	{query:{"color":"white"},result_count:2},
+	{query:{"maxatime":10},result_count:2},
+	{query:{"minatime":11},result_count:1},
+	{query:{"minatime":9,"maxatime":10},result_count:1}
 ];
 
 before(async function () {
 	var dbo = await dao.getdbObject();
-	await dbo.dropCollection(collection);
+
+	var collections = await dbo.listCollections({},{nameOnly:true}).toArray();
+
+	collections.forEach(async (col)=>{
+		console.info("Dropping: "+JSON.stringify(col));
+		await dbo.dropCollection(col.name);
+	});
+
 	await dbo.createCollection(collection);
 
 	test_products.forEach(async (product)=>{
@@ -73,18 +73,29 @@ describe('Test cases', async function () {
 
 	it('testProductListing: List all product after filter', async function () {
 
-		queries.forEach(async (pair) =>{
+		queries.forEach(async (pair,i) =>{
 			var query = pair.query;
 			var expected_count = pair.result_count;
 
 			var productlist = await dao.productListing(query).catch((error) => {console.error(error);});
 			assert.equal(productlist.length,expected_count,"failed for "+ JSON.stringify(pair));
+			if(i==0){
+				assert.equal(productlist[0].productid,1234);
+				assert.equal(productlist[1].productid,1235);
+				assert.equal(productlist[2].productid,1237);
+				assert.equal(productlist[3].productid,1236);
+			}
+			if(i==1){
+				assert.equal(productlist[0].productid,1236);
+				assert.equal(productlist[1].productid,1237);
+				assert.equal(productlist[2].productid,1235);
+				assert.equal(productlist[3].productid,1234);
+			}
 		});
 
 	});
 });
 
 after(async function () {
-	var dbo = await dao.getdbObject();
-	await dbo.close;
+//  close mongo connection
 });

@@ -9,11 +9,11 @@ class MongoHandler{
 	}
 
 	async getDBObject(){
-		if(this.db_object!=null)
+		if(this.db_object!=null && this.dbclient!=null && this.dbclient.isConnected())
 			return this.db_object;
 
-		var dbclient = await MongoClient.connect(this.url,{ useNewUrlParser: true });
-		this.db_object = dbclient.db(this.db_name);
+		this.dbclient = await MongoClient.connect(this.url,{ useNewUrlParser: true });
+		this.db_object = this.dbclient.db(this.db_name);
 		console.info("New db object created : "+this.url+"/"+this.db_name);
 
 		return this.db_object;

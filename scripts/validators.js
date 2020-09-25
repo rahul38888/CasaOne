@@ -8,13 +8,17 @@ const atime_validator = joi.object().keys({
 	atime:joi.number().required().positive().integer()
 });
 
-const query_validator = joi.object().keys({
-	productid:joi.number(),
+const filter_schema = joi.object().keys({
+	productid:joi.number().positive(),
 	color:joi.string(),
 	maxatime:joi.number().positive(),
 	minatime:joi.number().positive(),
 	sortby:joi.string().valid('atime','price'),
 	sortorder:joi.string().valid('desc','asc')
+}).required()
+
+const query_validator = joi.object({
+	q:filter_schema
 })
 
 function validate(data,validator) {

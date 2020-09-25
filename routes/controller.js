@@ -5,12 +5,10 @@ const path = require('path');
 const { productidvalidator, atimevalidator, queryvalidator } = require('../scripts/validators')
 const CassaoneDao = require('../scripts/casaonedao');
 
-var dao = new CassaoneDao("mongodb://localhost:27017/","casaonedb");
+var dao = new CassaoneDao("mongodb://localhost:27017","casaonedb");
 
 const route = express.Router();
 route.get("/updateatime/:productid",async (req,res)=>{
-	console.log(req.params);
-	console.log(req.query);
 
 	try{
 		productidvalidator(req.params);
@@ -36,15 +34,18 @@ route.get("/updateatime/:productid",async (req,res)=>{
 
 route.get("/fetch",async (req,res)=>{
 
-	var query = req.query.q;
-
-	if(queryvalidator(query) == false ){
-		res.send({error:"Validation exception. Invalid query passed"});
+	try{
+		queryvalidator(req.query)
+	}
+	catch(e){
+		res.send({error:"Validation exception. Invalid query passed"+e});
 		return;
 	}
 
+	var query = JSON.parse(req.query.q);
+
 	try{
-		var result = await dao.getProductInfo(productid);
+		var result = await dao.productListing(query);
 		res.send(result);
 	}
 	catch(e){

@@ -57,15 +57,15 @@ class CassaoneDao{
 		var find= this.findfilterJson(query);
 		var sort = this.sortJson(query);
 
-		var productinfolist = await dbo.collection('productinfo').find(find).sort(sort).toArray();
+		var productlist = await dbo.collection('productinfo').find(find).sort(sort).toArray();
 
-		return productinfolist;
+		return productlist;
 
 	}
 
 	sortJson(query){
 		var sortorder = query.sortorder=="desc"?-1:1;
-		var sortby = query.sortby=="atime"?"assemblytime":"pricepermonth";
+		var sortby = query.sortby=="price"?"pricepermonth":"assemblytime";
 
 		return JSON.parse("{\""+sortby+"\":"+sortorder+"}");
 	}
@@ -94,6 +94,7 @@ class CassaoneDao{
 
 		return productinfolist[0];
 	}
+
 }
 
 module.exports = CassaoneDao;
