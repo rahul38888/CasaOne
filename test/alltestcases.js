@@ -15,15 +15,16 @@ const queries = [
 	{query:{},result_count:4},
 	{query:{"productid":1234},result_count:1},
 	{query:{"color":"white"},result_count:2},
-	{query:{"maxatime":10},result_count:2},
-	{query:{"minatime":11},result_count:1},
-	{query:{"minatime":9,"maxatime":10},result_count:1}
+	{query:{"atimerange":{"max":10}},result_count:2},
+	{query:{"atimerange":{"min":11}},result_count:1},
+	{query:{"atimerange":{"min":9,"max":10}},result_count:1},
+	{query:{"ratingrange":{"max":3.8}},result_count:1},
+	{query:{"ratingrange":{"min":4.5}},result_count:1},
+	{query:{"ratingrange":{"min":4,"max":5}},result_count:3}
 ];
 
 before(async function () {
-	console.info("--------- Start : Initializing sample database ---------");
 	await recreateSampleData(dao);
-	console.info("--------- End: Initializing sample database ---------\n");
 });
 
 describe('Test cases', async function () {
@@ -75,7 +76,9 @@ describe('Test cases', async function () {
 
 	it('testProductListing: List all product after filter', async function () {
 
-		queries.forEach(async (pair,i) =>{
+		for(var i=0;i<queries.length;i++){
+			var pair = queries[i];
+
 			var query = pair.query;
 			var expected_count = pair.result_count;
 
@@ -95,7 +98,7 @@ describe('Test cases', async function () {
 				assert.equal(productlist[2].productid,1235);
 				assert.equal(productlist[3].productid,1234);
 			}
-		});
+		}
 
 	});
 });

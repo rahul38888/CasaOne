@@ -7,6 +7,8 @@ async function recreateSampleData(dao){
 		var dbo = await dao.getdbObject();
 		var collections = await dbo.listCollections({},{nameOnly:true}).toArray();
 
+
+		console.info("--------- Initializing sample database : "+dao.mongo_handler.db_name +" ---------");
 		collections.forEach(async (col)=>{
 			console.info("Dropping: "+JSON.stringify(col));
 			await dbo.dropCollection(col.name);

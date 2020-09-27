@@ -5,7 +5,7 @@ var sample_products = [
 
 	{"_id":1236,"productid":1236,"name":"Hex 5 lb Dumbbell Black (Single Unit)","color":"black","pricepermonth":1,"overallrating":4,"ratingcounts":{1:0,2:0,3:0,4:20,5:0}},
 
-	{"_id":1237,"productid":1237,"name":"Helix Queen Mattress White","color":"white","assemblytime":8,"lastassemblies":[10,10,5,5,10],"pricepermonth":27,"overallrating":4.5,"ratingcounts":{1:0,2:0,3:0,4:5,5:5}}
+	{"_id":1237,"productid":1237,"name":"Helix Queen Mattress White","color":"white","assemblytime":8,"lastassemblies":[10,10,5,5,10],"pricepermonth":27,"overallrating":4.375,"ratingcounts":{1:0,2:0,3:0,4:5,5:3}}
 ]
 
 module.exports = sample_products;

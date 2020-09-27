@@ -76,7 +76,7 @@ route.get("/fetch",async (req,res)=>{
 	try{
 		var result = await dao.productListing(query);
 		res.header("Content-Type",'application/json');
-		res.send(JSON.stringify({products:result},null,2));
+		res.send(JSON.stringify({count:result.length,products:result},null,2));
 	}
 	catch(e){
 		res.header("Content-Type",'application/json');

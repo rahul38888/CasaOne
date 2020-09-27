@@ -13,42 +13,7 @@ node run initdb
 ```
 npm run server
 ```
-
-## **Assembly time management**
-
-To fetch product info for productid 1234 try following url:
-
-[localhost:2020/productinfo/fetch?q={"productid":1234}](localhost:2020/productinfo/fetch?q={"productid":1234})
-
-Some examples for payloads which can be passed with above API:
-
-``` json
-{"minatime":9,"maxatime":10,"sortby":"atime","sortorder":"desc"}
+4. Run test case
 ```
-
-``` json
-{"sortby":"atime","sortorder":"desc"}
+npm test
 ```
-
-``` json
-{"sortby":"price","sortorder":"asc"}
-```
-
-``` json
-{"productid":1234}
-```
-
-``` json
-{"color":"white"}
-```
-
-``` json
-{"minatime":9,"maxatime":10}
-```
-
-
-To update assembly time of product with productid 1234 with 40(minutes) try following url:
-
-[localhost:2020/updateatime/1234?atime=40](localhost:2020/updateatime/1234?atime=40)
-
-## **Product rating management**
