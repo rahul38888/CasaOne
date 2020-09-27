@@ -7,6 +7,7 @@ var dao = new CassaoneDao("mongodb://localhost:27017/","casaonedb_test");
 const collection = "productinfo";
 
 const test_products = require("../resources/sampledata");
+const recreateSampleData = require("../resources/sampledatautil");
 
 const queries = [
 	{query:{"sortby":"atime","sortorder":"desc"},result_count:4},
@@ -20,20 +21,9 @@ const queries = [
 ];
 
 before(async function () {
-	var dbo = await dao.getdbObject();
-
-	var collections = await dbo.listCollections({},{nameOnly:true}).toArray();
-
-	collections.forEach(async (col)=>{
-		console.info("Dropping: "+JSON.stringify(col));
-		await dbo.dropCollection(col.name);
-	});
-
-	await dbo.createCollection(collection);
-
-	test_products.forEach(async (product)=>{
-		await dao.insertProductInfo(product);
-	});
+	console.info("--------- Start : Initializing sample database ---------");
+	await recreateSampleData(dao);
+	console.info("--------- End: Initializing sample database ---------\n");
 });
 
 describe('Test cases', async function () {
@@ -63,12 +53,24 @@ describe('Test cases', async function () {
 			console.error(error);
 		});
 
+		var newatimes = [50,35,70,60,30];
+
 		assert.equal(productinfo.assemblytime, 49);
 		assert.equal(productinfo.lastassemblies.length,
-			productinfo.lastassemblies.length);
+			newatimes.length);
 
-		var newatimes = [50,35,70,60,30];
 		productinfo.lastassemblies.every((val, i) => assert.equal(val,newatimes[i]));
+	});
+
+	it('testAddNewRatingvalue: Update product rating, id '+test_products[0].productid, async function () {
+		await dao.addNewRatingvalue(test_products[0].productid,4);
+
+		var productinfo = await dao.getProductInfo(test_products[0].productid).catch((error) => {
+			console.error(error);
+		});
+
+		assert.equal(productinfo.overallrating, 4.5);
+		assert.equal(productinfo.ratingcounts[4],1);
 	});
 
 	it('testProductListing: List all product after filter', async function () {
@@ -77,8 +79,10 @@ describe('Test cases', async function () {
 			var query = pair.query;
 			var expected_count = pair.result_count;
 
-			var productlist = await dao.productListing(query).catch((error) => {console.error(error);});
-			assert.equal(productlist.length,expected_count,"failed for "+ JSON.stringify(pair));
+			var productlist = await dao.productListing(query).catch((error) => {
+				console.error(error);
+			});
+			assert.equal(productlist.length,expected_count);
 			if(i==0){
 				assert.equal(productlist[0].productid,1234);
 				assert.equal(productlist[1].productid,1235);

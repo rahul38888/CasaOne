@@ -1,8 +1,6 @@
 const express = require('express');
-const request = require('request');
-const path = require('path');
 
-const { productidvalidator, atimevalidator, queryvalidator } = require('../scripts/validators')
+const { productidvalidator, atimevalidator, queryvalidator, ratingvalidator } = require('../scripts/validators')
 const CassaoneDao = require('../scripts/casaonedao');
 
 var dao = new CassaoneDao("mongodb://localhost:27017","casaonedb");
@@ -15,7 +13,8 @@ route.get("/updateatime/:productid",async (req,res)=>{
 		atimevalidator(req.query);
 	}
 	catch(e){
-		res.send({error:"Validation exception. Product id and/or assembly time is passed wrong"});
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({error:"Validation exception. Product id and/or assembly time is passed wrong",exception:e.message},null,2));
 		return;
 	}
 
@@ -24,10 +23,39 @@ route.get("/updateatime/:productid",async (req,res)=>{
 
 	try{
 		var result = await dao.addNewAssemblyTime(productid,atime);
-		res.send({status:"Done","update":result});
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({status:"Done","update":result},null,2));
 	}
 	catch(e){
-		res.send({error:"Exception while updating",exception:e.message});
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({error:"Exception while updating",exception:e.message},null,2));
+	}
+
+});
+
+route.get("/updaterating/:productid",async (req,res)=>{
+
+	try{
+		productidvalidator(req.params);
+		ratingvalidator(req.query);
+	}
+	catch(e){
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({error:"Validation exception.",exception:e.message},null,2));
+		return;
+	}
+
+	var productid = parseInt(req.params.productid);
+	var newrating = parseInt(req.query.newrating);
+
+	try{
+		var result = await dao.addNewRatingvalue(productid,newrating);
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({status:"Done","update":result},null,2));
+	}
+	catch(e){
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({error:"Exception while updating",exception:e.message},null,2));
 	}
 
 });
@@ -38,7 +66,8 @@ route.get("/fetch",async (req,res)=>{
 		queryvalidator(req.query)
 	}
 	catch(e){
-		res.send({error:"Validation exception. Invalid query passed"+e});
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({error:"Validation exception. Invalid query passed",exception:e.message},null,2));
 		return;
 	}
 
@@ -46,10 +75,12 @@ route.get("/fetch",async (req,res)=>{
 
 	try{
 		var result = await dao.productListing(query);
-		res.send(result);
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({products:result},null,2));
 	}
 	catch(e){
-		res.send({error:"Exception while updating",exception:e.message});
+		res.header("Content-Type",'application/json');
+		res.send(JSON.stringify({error:"Exception while updating",exception:e.message},null,2));
 	}
 
 });

@@ -7,11 +7,11 @@ This rest application has been build using **nodejs v10.19.0** javascript engine
 1. Start mongo server. Make sure it is running on _localhost:27017_
 2. Run following command to create database, collection and sample data. _Ctrl+c_ to stop the script.
 ```
-node sampledatacreator.js
+node run initdb
 ```
-3. Run application
+3. Run application server
 ```
-node index.js
+npm run server
 ```
 
 ## **Assembly time management**

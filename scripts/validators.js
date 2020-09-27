@@ -1,24 +1,34 @@
 const joi = require('joi');
 
-const product_id_validator = joi.object().keys({
+const productid_schema = joi.object().keys({
 	productid:joi.number().required().positive().integer()
 });
 
-const atime_validator = joi.object().keys({
+const atime_schema = joi.object().keys({
 	atime:joi.number().required().positive().integer()
+});
+
+const range = joi.object().keys({
+	max:joi.number(),
+	min:joi.number()
 });
 
 const filter_schema = joi.object().keys({
 	productid:joi.number().positive(),
 	color:joi.string(),
-	maxatime:joi.number().positive(),
-	minatime:joi.number().positive(),
-	sortby:joi.string().valid('atime','price'),
-	sortorder:joi.string().valid('desc','asc')
+	atimerange:range,
+	ratingrange:range,
+	sortby:joi.string().valid('atime','price','rating'),
+	sortorder:joi.string().valid('desc','asc'),
+
 }).required()
 
-const query_validator = joi.object({
+const query_scheme = joi.object({
 	q:filter_schema
+})
+
+const rating_schema = joi.object({
+	newrating:joi.number().valid(1,2,3,4,5).required()
 })
 
 function validate(data,validator) {
@@ -34,6 +44,8 @@ function validate(data,validator) {
 	});
 }
 
-exports.productidvalidator = function(data){validate(data,product_id_validator)};
-exports.atimevalidator = function(data){validate(data,atime_validator)};
-exports.queryvalidator = function(data){validate(data,query_validator)};
+exports.productidvalidator = function(data){validate(data,productid_schema)};
+exports.atimevalidator = function(data){validate(data,atime_schema)};
+exports.ratingvalidator = function(data){validate(data,rating_schema)};
+
+exports.queryvalidator = function(data){validate(data,query_scheme)};

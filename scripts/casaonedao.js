@@ -1,6 +1,8 @@
 const MongoHandler = require('../scripts/mongohandler');
 var assert = require('assert');
 
+const sortbymap = {"rating":"overallrating",'atime':"assemblytime",'price':"pricepermonth"};
+
 class CassaoneDao{
 
 	constructor(url,db_name){
@@ -37,9 +39,46 @@ class CassaoneDao{
 			{ $set: {assemblytime: average_atime,lastassemblies:assemblies}}
 		);
 
-		console.info("Product info updated with (productid,assemblytime,lastassemblies): ("+productinfo.productid+","+average_atime+",["+assemblies+"])");
+		console.info("Product info updated with (productid,assemblytime,lastassemblies): ("+productinfo.productid+","+average_atime+","+JSON.stringify(assemblies)+")");
 
 		return {productid:productId,assemblytime:average_atime,lastassemblies:assemblies};
+	}
+
+	async addNewRatingvalue(productId,rating){
+		if(rating<1 || rating>5){
+			console.error("Invalid rating value: "+rating);
+			throw new Error("Invalid rating value: "+rating);
+		}
+		var dbo =  await this.mongo_handler.getDBObject();
+
+		var productinfo = await this.getProductInfo(productId);
+
+		if(productinfo==undefined){
+			console.error("No product found for productid: "+productId);
+			throw new Error("No product found for productid: "+productId);
+		}
+
+		var ratingcounts = productinfo.ratingcounts;
+
+		ratingcounts[rating]++;
+
+		var multsum = 0;
+		var count = 0;
+		for(var [key,value] of Object.entries(ratingcounts)){
+			multsum=multsum+key*value;
+			count=count+value;
+		}
+
+		var newoverallrating = multsum/count;
+
+		await dbo.collection('productinfo').updateOne(
+			{_id:productId},
+			{ $set: {overallrating: newoverallrating,ratingcounts:ratingcounts}}
+		);
+
+		console.info("Product info updated with (productid,overallrating,ratingcounts): ("+productinfo.productid+","+newoverallrating+","+JSON.stringify(ratingcounts)+")");
+
+		return {productid:productId,overallrating: newoverallrating,ratingcounts:ratingcounts};
 	}
 
 	async insertProductInfo(productinfo){
@@ -65,7 +104,7 @@ class CassaoneDao{
 
 	sortJson(query){
 		var sortorder = query.sortorder=="desc"?-1:1;
-		var sortby = query.sortby=="price"?"pricepermonth":"assemblytime";
+		var sortby = sortbymap[query.sortby]
 
 		return JSON.parse("{\""+sortby+"\":"+sortorder+"}");
 	}
@@ -78,11 +117,29 @@ class CassaoneDao{
 		if(query.color)
 			findfilter.color = query.color;
 
-			if(query.maxatime)
-				findfilter.assemblytime = {"$lte":query.maxatime}
+		if(query.atimerange){
+			var filter = {};
+			if(query.atimerange.max)
+				filter["$lte"] = query.atimerange.max;
 
-			if(query.minatime)
-				findfilter.assemblytime = {"$lte":query.minatime}
+			if(query.atimerange.min)
+				filter["$gte"] = query.atimerange.min;
+
+			if(Object.keys(filter).length>0)
+				findfilter.assemblytime = filter;
+		}
+
+		if(query.ratingrange){
+			var filter = {};
+			if(query.ratingrange.max)
+				filter["$lte"] = query.ratingrange.max;
+
+			if(query.ratingrange.min)
+				filter["$gte"] = query.ratingrange.min;
+
+			if(Object.keys(filter).length>0)
+				findfilter.overallrating = filter;
+		}
 
 		return findfilter;
 	}
