@@ -5,7 +5,7 @@ const productid_schema = joi.object().keys({
 });
 
 const atime_schema = joi.object().keys({
-	atime:joi.number().required().positive().integer()
+	atime:joi.number().required().positive()
 });
 
 const range = joi.object().keys({
@@ -14,7 +14,7 @@ const range = joi.object().keys({
 });
 
 const filter_schema = joi.object().keys({
-	productid:joi.number().positive(),
+	productid:joi.number().positive().integer(),
 	color:joi.string(),
 	atimerange:range,
 	ratingrange:range,
@@ -33,12 +33,8 @@ const rating_schema = joi.object({
 
 function validate(data,validator) {
 	return joi.validate(data,validator,(err,result)=>{
-		if(err){
-			const errors = [];
-			err.details.forEach(detail=>{errors.push(detail.message)});
-			console.log(errors);
+		if(err)
 			throw err;
-		}
 		else
 			return true;
 	});
@@ -47,5 +43,4 @@ function validate(data,validator) {
 exports.productidvalidator = function(data){validate(data,productid_schema)};
 exports.atimevalidator = function(data){validate(data,atime_schema)};
 exports.ratingvalidator = function(data){validate(data,rating_schema)};
-
 exports.queryvalidator = function(data){validate(data,query_scheme)};
